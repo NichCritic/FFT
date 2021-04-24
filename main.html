@@ -1,0 +1,52 @@
+<script src="kaboom/src/kaboom.js"></script>
+<script type="module">
+
+// initialize kaboom context
+const k = kaboom();
+
+k.loadSprite("grass", "grass.png");
+k.loadSprite("ritz", "ritzwalk.png", {
+    sliceX: 3,
+    sliceY: 1,
+    anims: {
+        walk: [0, 1, 2, 1],
+    },
+});
+
+// define a scene
+k.scene("main", () => {
+
+	for(var j = 0; j < 15; j++){
+		for(var i = 0; i < 15; i++){
+			k.add([
+				k.sprite("grass", 32),
+				k.pos(100+(i*16+j*16), 100+(i*8-j*8)),]
+			);	
+		}
+		
+	}
+
+	var ritz = k.add([
+		k.sprite("ritz", {
+        animSpeed: 0.5}),
+		k.pos(100+(7*16+7*16), 100)
+	])
+
+	
+
+	ritz.play("walk");
+	
+	k.mouseClick(() => {
+		var pos = k.mousePos();
+		//var center = k.vec2(width()/2, height()/2)
+		k.camPos(pos);
+	});
+
+});
+
+
+
+// start the game
+k.start("main");
+
+</script>
