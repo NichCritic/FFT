@@ -5,6 +5,7 @@
 const k = kaboom();
 
 k.loadSprite("grass", "grass.png");
+k.loadSprite("select", "select.png")
 k.loadSprite("ritz", "ritzwalk.png", {
     sliceX: 3,
     sliceY: 1,
@@ -15,32 +16,46 @@ k.loadSprite("ritz", "ritzwalk.png", {
 
 // define a scene
 k.scene("main", () => {
-
-	for(var j = 0; j < 15; j++){
-		for(var i = 0; i < 15; i++){
+	k.camPos(k.vec2(k.width()/2, 0));
+	for(var j = 0; j < 16; j++){
+		for(var i = 0; i < 16; i++){
 			k.add([
 				k.sprite("grass", 32),
-				k.pos(100+(i*16+j*16), 100+(i*8-j*8)),]
+				k.pos((i*16+j*16), j*8-i*8),]
 			);	
 		}
 		
 	}
+	var spriteoffset = {x:4, y:-10};
+	let tilex = 8;
+	let tiley = 8;
 
 	var ritz = k.add([
 		k.sprite("ritz", {
         animSpeed: 0.5}),
-		k.pos(100+(7*16+7*16), 100)
+		k.pos((tilex*16+tiley*16)+spriteoffset.x, (tiley*8-tilex*8)+spriteoffset.y)
 	])
 
 	
 
 	ritz.play("walk");
+
+	var select = k.add([
+		k.sprite("select"),
+		k.pos(0, 0),
+		"select"
+	])
+
+	k.action("select", (s) => {
+		s.pos = k.mousePos().sub(16, 8).sub(0, 8*30);
+
+	})
 	
-	k.mouseClick(() => {
-		var pos = k.mousePos();
-		//var center = k.vec2(width()/2, height()/2)
-		k.camPos(pos);
-	});
+	// k.mouseClick(() => {
+	// 	var pos = k.mousePos();
+	// 	//var center = k.vec2(width()/2, height()/2)
+	// 	k.camPos(pos);
+	// });
 
 });
 
