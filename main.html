@@ -17,49 +17,32 @@ k.loadSprite("ritz", "ritzwalk.png", {
     },
 });
 
-// function mouseTile(s, mousePos){
-// 	const camPos = {x: -5, y: -5, z: -5}
-//  	const camDirection = { x: 1, y:1, z:1}
-//  	const touch = {x: mousePos.x, y:-mousePos.y}
-//  	const sqrt2 = Math.sqrt(2);
-//  	const spriteoffset = {x:0, y:8};
-
-//  	const touchPos = {
-//  		x: camPos.x + touch.x / sqrt2,
-//  		y: camPos.y - touch.x / sqrt2,
-//  		z: camPos.z - touch.y / sqrt2
-//  	}
-
-//  	for(let delta = 0; delta < 100; delta++){
-//  		const x = touchPos.x + camDirection.x * delta;
-//  		const y = touchPos.y + camDirection.y * delta;
-//  		const z = touchPos.z + camDirection.z * delta;
-//  		const absX = ~~(x/16);
-//  		const absZ = ~~(z/16);
-//  		//console.log(absX, absZ)
-
-//  		if(0 >= y){
-//  			s.pos = k.vec2((absX*16+absZ*16)+spriteoffset.x, (absZ*8-absX*8)+spriteoffset.y)
-//  		}
+k.loadSprite("negaritz", "negaritzwalk.png", {
+    sliceX: 3,
+    sliceY: 4,
+    anims: {
+        walksw: [0, 1, 2, 1],
+        walknw: [3, 4, 5, 4],
+        walkse: [6, 7, 8, 7],
+        walkne: [9, 10, 11, 10],
+    },
+});
 
 
-//  	}
-
-// }
 
 function tilePos(tileX, tileY) {
-	var spriteoffset = {x:4, y:-10};
+
 	return {
 		movePlusX() {
 			this.play("walkne");
 			let oldPos = {};
-			oldPos.x = (tileX*16+tileY*16)+spriteoffset.x;
-			oldPos.y = (tileY*8-tileX*8)+spriteoffset.y;
+			oldPos.x = (tileX*16+tileY*16)+this.spriteoffset.x;
+			oldPos.y = (tileY*8-tileX*8)+this.spriteoffset.y;
 
 			tileX += 1;
 			let newPos = {};
-			newPos.x = (tileX*16+tileY*16)+spriteoffset.x;
-			newPos.y = (tileY*8-tileX*8)+spriteoffset.y;
+			newPos.x = (tileX*16+tileY*16)+this.spriteoffset.x;
+			newPos.y = (tileY*8-tileX*8)+this.spriteoffset.y;
 			this.addTag("moveTo");
 			this.oldPos = oldPos;
 			this.desiredPos = newPos;
@@ -68,13 +51,13 @@ function tilePos(tileX, tileY) {
 		moveMinusX(){
 			this.play("walksw");
 			let oldPos = {};
-			oldPos.x = (tileX*16+tileY*16)+spriteoffset.x;
-			oldPos.y = (tileY*8-tileX*8)+spriteoffset.y;
+			oldPos.x = (tileX*16+tileY*16)+this.spriteoffset.x;
+			oldPos.y = (tileY*8-tileX*8)+this.spriteoffset.y;
 
 			tileX -= 1;
 			let newPos = {};
-			newPos.x = (tileX*16+tileY*16)+spriteoffset.x;
-			newPos.y = (tileY*8-tileX*8)+spriteoffset.y;
+			newPos.x = (tileX*16+tileY*16)+this.spriteoffset.x;
+			newPos.y = (tileY*8-tileX*8)+this.spriteoffset.y;
 			this.addTag("moveTo");
 			this.oldPos = oldPos;
 			this.desiredPos = newPos;
@@ -83,13 +66,13 @@ function tilePos(tileX, tileY) {
 		movePlusY() {
 			this.play("walkse");
 			let oldPos = {};
-			oldPos.x = (tileX*16+tileY*16)+spriteoffset.x;
-			oldPos.y = (tileY*8-tileX*8)+spriteoffset.y;
+			oldPos.x = (tileX*16+tileY*16)+this.spriteoffset.x;
+			oldPos.y = (tileY*8-tileX*8)+this.spriteoffset.y;
 
 			tileY += 1;
 			let newPos = {};
-			newPos.x = (tileX*16+tileY*16)+spriteoffset.x;
-			newPos.y = (tileY*8-tileX*8)+spriteoffset.y;
+			newPos.x = (tileX*16+tileY*16)+this.spriteoffset.x;
+			newPos.y = (tileY*8-tileX*8)+this.spriteoffset.y;
 			this.addTag("moveTo");
 			this.oldPos = oldPos;
 			this.desiredPos = newPos;
@@ -98,20 +81,20 @@ function tilePos(tileX, tileY) {
 		moveMinusY(){
 			this.play("walknw");
 			let oldPos = {};
-			oldPos.x = (tileX*16+tileY*16)+spriteoffset.x;
-			oldPos.y = (tileY*8-tileX*8)+spriteoffset.y;
+			oldPos.x = (tileX*16+tileY*16)+this.spriteoffset.x;
+			oldPos.y = (tileY*8-tileX*8)+this.spriteoffset.y;
 
 			tileY -= 1;
 			let newPos = {};
-			newPos.x = (tileX*16+tileY*16)+spriteoffset.x;
-			newPos.y = (tileY*8-tileX*8)+spriteoffset.y;
+			newPos.x = (tileX*16+tileY*16)+this.spriteoffset.x;
+			newPos.y = (tileY*8-tileX*8)+this.spriteoffset.y;
 			this.addTag("moveTo");
 			this.oldPos = oldPos;
 			this.desiredPos = newPos;
 			this.moveToProgress = 0;
 		},
 		center(){
-			this.pos = k.vec2((tileX*16+tileY*16)+spriteoffset.x, (tileY*8-tileX*8)+spriteoffset.y);
+			this.pos = k.vec2((tileX*16+tileY*16)+this.spriteoffset.x, (tileY*8-tileX*8)+this.spriteoffset.y);
 		},
 		tilePos(){
 			return k.vec2(tileX, tileY);
@@ -122,44 +105,112 @@ function tilePos(tileX, tileY) {
 
 // define a scene
 k.scene("main", () => {
+	k.layers([
+		"bg",
+		"map",
+		"selector",
+		"sprite",
+		"ui"	
+	], "sprite");
+
 	k.camPos(k.vec2(k.width()/2, 0));
+
 	for(var j = 0; j < 16; j++){
 		for(var i = 0; i < 16; i++){
 			k.add([
 				k.sprite("grass", 32),
-				k.pos((i*16+j*16), j*8-i*8),]
+				k.pos((i*16+j*16), j*8-i*8),],
+				k.layer("map")
 			);	
 		}
-		
 	}
-	var spriteoffset = {x:4, y:-10};
-	let tilex = 7;
-	let tiley = 8;
-
-	var ritz = k.add([
-		k.sprite("ritz", {
-        animSpeed: 0.5}),
-		k.pos((tilex*16+tiley*16)+spriteoffset.x, (tiley*8-tilex*8)+spriteoffset.y),
-		tilePos(tilex, tiley),
-		{
-			moveQueue:[]
-		}
-	])
-
-	
-
-	
-
-	ritz.moveMinusX();
 
 	var select = k.add([
 		k.sprite("select"),
 		k.pos(0, 0),
+		{
+			spriteoffset:{x:0, y:-8}
+		},
 		"select"
 	])
 
+
+	var ritz = k.add([
+		k.sprite("ritz", {animSpeed: 0.5}),
+		k.pos(-1000, -1000),
+		tilePos(7, 8),
+		{
+			spriteoffset: {x:4, y:-10},
+			moveQueue:[]
+		}
+	]);
+
+	ritz.center();
+
+	var negaritz = k.add([
+		k.sprite("negaritz", {animSpeed: 0.5}),
+		k.pos(-1000, -1000),
+		tilePos(8, 9),
+		{
+			spriteoffset: {x:4, y:-10},
+			moveQueue:[]
+		}
+	]);
+	negaritz.center();
+
+
+	var initiative = k.add([
+		"initiative",
+		{
+			characters : [ritz, negaritz],
+			turnindex: 0,
+			state: "IDLE",
+			states:{
+				TURN_START:"TURN_START",
+				IDLE:"IDLE",
+				MOVE_SELECT:"MOVE_SELECT",
+				MOVING:"MOVING",
+				ATTACK_SELECT:"ATTACK_SELECT",
+				ATTACKING:"ATTACKING",
+				TURN_END: "TURN_END"
+			}
+		}
+	])
+
+	k.action("initiative", (ini)=>{
+		switch(ini.state){
+			case "TURN_START":
+				//CenterCameraOnActivePlayer
+				break;
+			case "IDLE":
+				//showOptions(ini.characters[ini.turnindex]);
+				break;
+			case "MOVE_SELECT":
+				//showMoveSelect();
+				break;
+			case "MOVING":
+				break;
+			case "ATTACK_SELECT":
+				//showAttackSelect()
+				break;
+			case "ATTACKING":
+				break;
+			case "TURN_END":
+				ini.turnindex = (ini.turnindex + 1) % ini.characters.length;
+				break;
+
+		}
+
+
+	})
+
+
+	
+
+
+
 	k.action("select", (s) => {
-		let spriteoffset = {x:0, y:-8};
+		let spriteoffset = s.spriteoffset;
 		let pos = k.mousePos().sub(0, 8*30);
 		s.tpos = k.vec2(Math.floor(1/32*(pos.x-2*pos.y)), Math.floor(1/32*(pos.x+2*pos.y)));
 		s.pos = k.vec2((s.tpos.x*16+s.tpos.y*16)+spriteoffset.x, (s.tpos.y*8-s.tpos.x*8)+spriteoffset.y)
@@ -241,12 +292,6 @@ k.scene("main", () => {
 
 
 	})
-	
-	// k.mouseClick(() => {
-	// 	var pos = k.mousePos();
-	// 	//var center = k.vec2(width()/2, height()/2)
-	// 	k.camPos(pos);
-	// });
 
 });
 
