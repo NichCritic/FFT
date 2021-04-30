@@ -3,8 +3,11 @@
 
 // initialize kaboom context
 const k = kaboom();
+const TILEW = 16;
+const TILEH = 8;
 
 k.loadSprite("grass", "grass.png");
+k.loadSprite("movementselector", "movementselector.png");
 k.loadSprite("select", "select.png")
 k.loadSprite("ritz", "ritzwalk.png", {
     sliceX: 3,
@@ -28,6 +31,122 @@ k.loadSprite("negaritz", "negaritzwalk.png", {
     },
 });
 
+k.loadSprite("ritz-por", "ritz-por.png");
+k.loadSprite("negaritz-por", "negaritz-por.png");
+
+
+function showMoveSelect(k, init, character){
+	if(!init.moveSelectShowing){
+		clearInitElems(k, init);
+		let tiles = drawTileSpread(character.tilePos().x, character.tilePos().y, character.moveSpeed)
+		init.ui_elems.push(...tiles);
+		init.moveSelectShowing = true;
+
+
+
+		var select = k.add([
+			k.sprite("select"),
+			k.pos(0, 0),
+			{
+				spriteoffset:{x:0, y:0}
+			},
+			k.layer("selector"),
+			"select"
+		])
+
+		init.ui_elems.push(select);
+
+		let clickArea = k.add([
+			k.area(k.vec2(-1000, -1000), k.vec2(k.width()+1000, k.height()+1000)),
+			"clickArea",
+			{
+				//Some real bullshit right here
+				ch:character,
+			 	sel:select,
+			 	init:init
+			 }
+
+		])
+		init.ui_elems.push(clickArea);
+		
+
+	}
+
+
+}
+
+function drawTileSpread(startX, startY, depth){
+	let tiles = [];
+
+	for(var j = -depth; j <= depth; j++){
+		for(var i = -depth; i <= depth; i++){
+			if(Math.abs(i) + Math.abs(j) <= depth){
+				let x = startX+i;
+				let y = startY+j;
+				let tile = k.add([
+					k.sprite("movementselector"),
+					k.pos((x*TILEW+y*TILEW), y*TILEH-x*TILEH-4),
+					k.layer("moveselector")],
+				);
+				tiles.push(tile);
+			}
+		}
+	}
+	return tiles;
+
+}
+
+function displayPortraits(k, characters){
+
+	for(var i = 0; i < characters.length; i++){
+		var ch = characters[i];
+
+		ch.portraitElem = k.add([
+			k.layer('ui'),
+			k.sprite(ch.portrait),
+			k.pos(k.width() - (52+10) * (i+1) -10, k.height() - 64)
+		]);
+	}
+
+}
+
+function clearInitElems(k, init){
+	for(let i = 0; i < init.ui_elems.length; i++){
+		k.destroy(init.ui_elems[i]);
+	}
+	init.ui_elems = [];
+	init.optionsShowing = false;
+	init.moveSelectShowing = false;
+}
+
+function showOptions(k, init, ch) {
+	if(!init.optionsShowing){
+		clearInitElems(k, init);
+		let por = ch.portraitElem;
+
+		let bg = k.add([
+			k.layer("ui"),
+	  		k.rect(52, 20),
+	  		k.color(1, 1, 1),
+	  		k.pos(ch.portraitElem.pos.x, ch.portraitElem.pos.y - 25),
+	  		"movebutton"
+		]);
+
+		let text = k.add([
+			k.layer("ui"),
+		  	k.text("Move"),
+		  	k.pos(ch.portraitElem.pos.x+10, ch.portraitElem.pos.y - 15),
+		  	k.color(0, 0, 0)
+		]);
+
+		
+		init.ui_elems.push(bg);
+		init.ui_elems.push(text);
+		init.optionsShowing = true;
+	}
+
+}
+
 
 
 function tilePos(tileX, tileY) {
@@ -36,13 +155,13 @@ function tilePos(tileX, tileY) {
 		movePlusX() {
 			this.play("walkne");
 			let oldPos = {};
-			oldPos.x = (tileX*16+tileY*16)+this.spriteoffset.x;
-			oldPos.y = (tileY*8-tileX*8)+this.spriteoffset.y;
+			oldPos.x = (tileX*TILEW+tileY*TILEW)+this.spriteoffset.x;
+			oldPos.y = (tileY*TILEH-tileX*TILEH)+this.spriteoffset.y;
 
 			tileX += 1;
 			let newPos = {};
-			newPos.x = (tileX*16+tileY*16)+this.spriteoffset.x;
-			newPos.y = (tileY*8-tileX*8)+this.spriteoffset.y;
+			newPos.x = (tileX*TILEW+tileY*TILEW)+this.spriteoffset.x;
+			newPos.y = (tileY*TILEH-tileX*TILEH)+this.spriteoffset.y;
 			this.addTag("moveTo");
 			this.oldPos = oldPos;
 			this.desiredPos = newPos;
@@ -51,13 +170,13 @@ function tilePos(tileX, tileY) {
 		moveMinusX(){
 			this.play("walksw");
 			let oldPos = {};
-			oldPos.x = (tileX*16+tileY*16)+this.spriteoffset.x;
-			oldPos.y = (tileY*8-tileX*8)+this.spriteoffset.y;
+			oldPos.x = (tileX*TILEW+tileY*TILEW)+this.spriteoffset.x;
+			oldPos.y = (tileY*TILEH-tileX*TILEH)+this.spriteoffset.y;
 
 			tileX -= 1;
 			let newPos = {};
-			newPos.x = (tileX*16+tileY*16)+this.spriteoffset.x;
-			newPos.y = (tileY*8-tileX*8)+this.spriteoffset.y;
+			newPos.x = (tileX*TILEW+tileY*TILEW)+this.spriteoffset.x;
+			newPos.y = (tileY*TILEH-tileX*TILEH)+this.spriteoffset.y;
 			this.addTag("moveTo");
 			this.oldPos = oldPos;
 			this.desiredPos = newPos;
@@ -66,13 +185,13 @@ function tilePos(tileX, tileY) {
 		movePlusY() {
 			this.play("walkse");
 			let oldPos = {};
-			oldPos.x = (tileX*16+tileY*16)+this.spriteoffset.x;
-			oldPos.y = (tileY*8-tileX*8)+this.spriteoffset.y;
+			oldPos.x = (tileX*TILEW+tileY*TILEW)+this.spriteoffset.x;
+			oldPos.y = (tileY*TILEH-tileX*TILEH)+this.spriteoffset.y;
 
 			tileY += 1;
 			let newPos = {};
-			newPos.x = (tileX*16+tileY*16)+this.spriteoffset.x;
-			newPos.y = (tileY*8-tileX*8)+this.spriteoffset.y;
+			newPos.x = (tileX*TILEW+tileY*TILEW)+this.spriteoffset.x;
+			newPos.y = (tileY*TILEH-tileX*TILEH)+this.spriteoffset.y;
 			this.addTag("moveTo");
 			this.oldPos = oldPos;
 			this.desiredPos = newPos;
@@ -81,23 +200,54 @@ function tilePos(tileX, tileY) {
 		moveMinusY(){
 			this.play("walknw");
 			let oldPos = {};
-			oldPos.x = (tileX*16+tileY*16)+this.spriteoffset.x;
-			oldPos.y = (tileY*8-tileX*8)+this.spriteoffset.y;
+			oldPos.x = (tileX*TILEW+tileY*TILEW)+this.spriteoffset.x;
+			oldPos.y = (tileY*TILEH-tileX*TILEH)+this.spriteoffset.y;
 
 			tileY -= 1;
 			let newPos = {};
-			newPos.x = (tileX*16+tileY*16)+this.spriteoffset.x;
-			newPos.y = (tileY*8-tileX*8)+this.spriteoffset.y;
+			newPos.x = (tileX*TILEW+tileY*TILEW)+this.spriteoffset.x;
+			newPos.y = (tileY*TILEH-tileX*TILEH)+this.spriteoffset.y;
 			this.addTag("moveTo");
 			this.oldPos = oldPos;
 			this.desiredPos = newPos;
 			this.moveToProgress = 0;
 		},
 		center(){
-			this.pos = k.vec2((tileX*16+tileY*16)+this.spriteoffset.x, (tileY*8-tileX*8)+this.spriteoffset.y);
+			this.pos = k.vec2((tileX*TILEW+tileY*TILEW)+this.spriteoffset.x, (tileY*TILEH-tileX*TILEH)+this.spriteoffset.y);
 		},
 		tilePos(){
 			return k.vec2(tileX, tileY);
+		},
+		moveToTile(destination){
+			let selectorPos = destination.add();
+			let pPos = this.tilePos();
+
+			let delta = selectorPos.sub(pPos);
+			let len = Math.abs(delta.x)+Math.abs(delta.y);
+			for(var i = 0; i < len; i++){
+				if(delta.x > 0){
+					delta.x -= 1;
+					this.moveQueue.push({x:1, y:0})
+					continue;
+				}
+				if(delta.x < 0){
+					delta.x += 1;
+					this.moveQueue.push({x:-1, y:0})
+					continue;
+				}
+				if(delta.y < 0){
+					delta.y += 1;
+					this.moveQueue.push({x:0, y:-1})
+					continue;
+				}
+				if(delta.y > 0){
+					delta.y -= 1;
+					this.moveQueue.push({x:0, y:1})
+					continue;
+				}
+			}
+			this.addTag("moveStart");
+
 		}
 
 	}
@@ -108,52 +258,55 @@ k.scene("main", () => {
 	k.layers([
 		"bg",
 		"map",
+		"moveselector",
 		"selector",
 		"sprite",
 		"ui"	
 	], "sprite");
+	k.camIgnore(["bg", "ui"]);
 
 	k.camPos(k.vec2(k.width()/2, 0));
+	//k.camScale(0.5);
 
 	for(var j = 0; j < 16; j++){
 		for(var i = 0; i < 16; i++){
 			k.add([
-				k.sprite("grass", 32),
-				k.pos((i*16+j*16), j*8-i*8),],
-				k.layer("map")
+				k.sprite("grass"),
+				k.pos((i*TILEW+j*TILEW), j*TILEH-i*TILEH),
+				k.layer("map")],
+				
 			);	
 		}
 	}
 
-	var select = k.add([
-		k.sprite("select"),
-		k.pos(0, 0),
-		{
-			spriteoffset:{x:0, y:-8}
-		},
-		"select"
-	])
+	
 
 
 	var ritz = k.add([
 		k.sprite("ritz", {animSpeed: 0.5}),
 		k.pos(-1000, -1000),
-		tilePos(7, 8),
+		tilePos(0, 0),
 		{
-			spriteoffset: {x:4, y:-10},
-			moveQueue:[]
+			portrait: "ritz-por",
+			spriteoffset: {x:4, y:-16},
+			moveQueue:[],
+			moveSpeed:3
 		}
 	]);
+
+	
 
 	ritz.center();
 
 	var negaritz = k.add([
 		k.sprite("negaritz", {animSpeed: 0.5}),
 		k.pos(-1000, -1000),
-		tilePos(8, 9),
+		tilePos(0, 15),
 		{
-			spriteoffset: {x:4, y:-10},
-			moveQueue:[]
+			portrait: "negaritz-por",
+			spriteoffset: {x:4, y:-16},
+			moveQueue:[],
+			moveSpeed:3
 		}
 	]);
 	negaritz.center();
@@ -165,6 +318,9 @@ k.scene("main", () => {
 			characters : [ritz, negaritz],
 			turnindex: 0,
 			state: "IDLE",
+			optionsShowing: false,
+			moveSelectShowing: false,
+			ui_elems:[],
 			states:{
 				TURN_START:"TURN_START",
 				IDLE:"IDLE",
@@ -176,6 +332,7 @@ k.scene("main", () => {
 			}
 		}
 	])
+	
 
 	k.action("initiative", (ini)=>{
 		switch(ini.state){
@@ -183,20 +340,25 @@ k.scene("main", () => {
 				//CenterCameraOnActivePlayer
 				break;
 			case "IDLE":
-				//showOptions(ini.characters[ini.turnindex]);
+				
+				showOptions(k, ini, ini.characters[ini.turnindex]);
 				break;
 			case "MOVE_SELECT":
-				//showMoveSelect();
+				
+				showMoveSelect(k, ini, ini.characters[ini.turnindex]);
 				break;
 			case "MOVING":
+				clearInitElems(k, ini);
 				break;
 			case "ATTACK_SELECT":
+				//hideAllOpenOptions();
 				//showAttackSelect()
 				break;
 			case "ATTACKING":
 				break;
 			case "TURN_END":
 				ini.turnindex = (ini.turnindex + 1) % ini.characters.length;
+				ini.state = ini.states.IDLE;
 				break;
 
 		}
@@ -204,18 +366,37 @@ k.scene("main", () => {
 
 	})
 
+	initiative.on("movement_ended", ()=>{
+		initiative.state = initiative.states.TURN_END;
+	});
 
-	
+	displayPortraits(k, initiative.characters);
 
 
+	//Very awkward to just have these action logics hanging here
+	//But they should only be defined once
 
 	k.action("select", (s) => {
 		let spriteoffset = s.spriteoffset;
 		let pos = k.mousePos().sub(0, 8*30);
 		s.tpos = k.vec2(Math.floor(1/32*(pos.x-2*pos.y)), Math.floor(1/32*(pos.x+2*pos.y)));
-		s.pos = k.vec2((s.tpos.x*16+s.tpos.y*16)+spriteoffset.x, (s.tpos.y*8-s.tpos.x*8)+spriteoffset.y)
+		s.pos = k.vec2((s.tpos.x*TILEW+s.tpos.y*TILEW)+spriteoffset.x, (s.tpos.y*TILEH-s.tpos.x*TILEH)+spriteoffset.y)
 		//mouseTile(s, k.mousePos());
 	})
+
+
+	k.action("clickArea", (b)=>{
+		if(b.isClicked()){
+			let character = b.ch;
+			let select = b.sel;
+			let delta = character.tilePos().sub(select.tpos)
+			if(Math.abs(delta.x) + Math.abs(delta.y) <= character.moveSpeed){
+				character.moveToTile(select.tpos);
+				b.init.state = b.init.states.MOVING;
+			}
+		}
+	})
+	
 
 	k.action("moveTo", (s) => {
 		if(s.moveToProgress > 1){
@@ -233,6 +414,7 @@ k.scene("main", () => {
 	k.action("moveEnd", (s) => {
 		s.removeTag("moveEnd");
 		if(s.moveQueue.length==0){
+			initiative.trigger("movement_ended");
 			return;
 		}
 		s.addTag("moveStart");
@@ -242,6 +424,7 @@ k.scene("main", () => {
 	k.action("moveStart", (s)=>{
 		s.removeTag("moveStart");
 		if(s.moveQueue.length == 0){
+			initiative.trigger("movement_ended");
 			return;
 		}
 		let dir = s.moveQueue.shift()
@@ -260,38 +443,19 @@ k.scene("main", () => {
 		s.removeTag("moveStart");
 	})
 
-	k.mouseClick(() => {
-		let selectorPos = select.tpos.add(k.vec2(1, -1));
-		let pPos = ritz.tilePos();
-
-		let delta = selectorPos.sub(pPos);
-		let len = Math.abs(delta.x)+Math.abs(delta.y);
-		for(var i = 0; i < len; i++){
-			if(delta.x > 0){
-				delta.x -= 1;
-				ritz.moveQueue.push({x:1, y:0})
-				continue;
-			}
-			if(delta.x < 0){
-				delta.x += 1;
-				ritz.moveQueue.push({x:-1, y:0})
-				continue;
-			}
-			if(delta.y < 0){
-				delta.y += 1;
-				ritz.moveQueue.push({x:0, y:-1})
-				continue;
-			}
-			if(delta.y > 0){
-				delta.y -= 1;
-				ritz.moveQueue.push({x:0, y:1})
-				continue;
-			}
+	k.action("movebutton", (b)=>{
+		if (b.isHovered()){
+			b.use(k.color(0.7, 0.7, 0.7));
 		}
-		ritz.addTag("moveStart");
-
-
+		else {
+			b.use(k.color(1, 1, 1));
+		}
+		if(b.isClicked()){
+			initiative.state = initiative.states.MOVE_SELECT
+		}
 	})
+
+	
 
 });
 
