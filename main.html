@@ -1,6 +1,6 @@
 <script src="kaboom/src/kaboom.js"></script>
 <script type="module">
-
+import {initialize_initiative} from "./initiative.js";
 // initialize kaboom context
 const k = kaboom();
 const TILEW = 16;
@@ -35,66 +35,9 @@ k.loadSprite("ritz-por", "ritz-por.png");
 k.loadSprite("negaritz-por", "negaritz-por.png");
 
 
-function showMoveSelect(k, init, character){
-	if(!init.moveSelectShowing){
-		clearInitElems(k, init);
-		let tiles = drawTileSpread(character.tilePos().x, character.tilePos().y, character.moveSpeed)
-		init.ui_elems.push(...tiles);
-		init.moveSelectShowing = true;
 
 
 
-		var select = k.add([
-			k.sprite("select"),
-			k.pos(0, 0),
-			{
-				spriteoffset:{x:0, y:0}
-			},
-			k.layer("selector"),
-			"select"
-		])
-
-		init.ui_elems.push(select);
-
-		let clickArea = k.add([
-			k.area(k.vec2(-1000, -1000), k.vec2(k.width()+1000, k.height()+1000)),
-			"clickArea",
-			{
-				//Some real bullshit right here
-				ch:character,
-			 	sel:select,
-			 	init:init
-			 }
-
-		])
-		init.ui_elems.push(clickArea);
-		
-
-	}
-
-
-}
-
-function drawTileSpread(startX, startY, depth){
-	let tiles = [];
-
-	for(var j = -depth; j <= depth; j++){
-		for(var i = -depth; i <= depth; i++){
-			if(Math.abs(i) + Math.abs(j) <= depth){
-				let x = startX+i;
-				let y = startY+j;
-				let tile = k.add([
-					k.sprite("movementselector"),
-					k.pos((x*TILEW+y*TILEW), y*TILEH-x*TILEH-4),
-					k.layer("moveselector")],
-				);
-				tiles.push(tile);
-			}
-		}
-	}
-	return tiles;
-
-}
 
 function displayPortraits(k, characters){
 
@@ -110,110 +53,49 @@ function displayPortraits(k, characters){
 
 }
 
-function clearInitElems(k, init){
-	for(let i = 0; i < init.ui_elems.length; i++){
-		k.destroy(init.ui_elems[i]);
-	}
-	init.ui_elems = [];
-	init.optionsShowing = false;
-	init.moveSelectShowing = false;
+function tileToScreenPos(tile, offset){
+	let x = (tile.x*TILEW+tile.y*TILEW) + offset.x;
+	let y = (tile.y*TILEH-tile.x*TILEH) + offset.y;
+	return k.vec2(x, y);
 }
-
-function showOptions(k, init, ch) {
-	if(!init.optionsShowing){
-		clearInitElems(k, init);
-		let por = ch.portraitElem;
-
-		let bg = k.add([
-			k.layer("ui"),
-	  		k.rect(52, 20),
-	  		k.color(1, 1, 1),
-	  		k.pos(ch.portraitElem.pos.x, ch.portraitElem.pos.y - 25),
-	  		"movebutton"
-		]);
-
-		let text = k.add([
-			k.layer("ui"),
-		  	k.text("Move"),
-		  	k.pos(ch.portraitElem.pos.x+10, ch.portraitElem.pos.y - 15),
-		  	k.color(0, 0, 0)
-		]);
-
-		
-		init.ui_elems.push(bg);
-		init.ui_elems.push(text);
-		init.optionsShowing = true;
-	}
-
-}
-
 
 
 function tilePos(tileX, tileY) {
+	const directions = {
+		ne: {x:1, y:0},
+		se: {x:0, y:1},
+		sw: {x:-1, y:0},
+		nw: {x:0, y:-1}
+	}
 
 	return {
-		movePlusX() {
-			this.play("walkne");
-			let oldPos = {};
-			oldPos.x = (tileX*TILEW+tileY*TILEW)+this.spriteoffset.x;
-			oldPos.y = (tileY*TILEH-tileX*TILEH)+this.spriteoffset.y;
+		moveOneTile(dir) {
+			let walkdir = "";
+			if(dir.x == directions.sw.x && dir.y == directions.sw.y){
+				walkdir="walksw"
+			}
+			if(dir.x == directions.ne.x && dir.y == directions.ne.y){
+				walkdir="walkne"
+			}
+			if(dir.x == directions.nw.x && dir.y == directions.nw.y){
+				walkdir="walknw"
+			}
+			if(dir.x == directions.se.x && dir.y == directions.se.y){
+				walkdir="walkse"
+			}
 
-			tileX += 1;
-			let newPos = {};
-			newPos.x = (tileX*TILEW+tileY*TILEW)+this.spriteoffset.x;
-			newPos.y = (tileY*TILEH-tileX*TILEH)+this.spriteoffset.y;
-			this.addTag("moveTo");
-			this.oldPos = oldPos;
-			this.desiredPos = newPos;
-			this.moveToProgress = 0;
-		},
-		moveMinusX(){
-			this.play("walksw");
-			let oldPos = {};
-			oldPos.x = (tileX*TILEW+tileY*TILEW)+this.spriteoffset.x;
-			oldPos.y = (tileY*TILEH-tileX*TILEH)+this.spriteoffset.y;
-
-			tileX -= 1;
-			let newPos = {};
-			newPos.x = (tileX*TILEW+tileY*TILEW)+this.spriteoffset.x;
-			newPos.y = (tileY*TILEH-tileX*TILEH)+this.spriteoffset.y;
-			this.addTag("moveTo");
-			this.oldPos = oldPos;
-			this.desiredPos = newPos;
-			this.moveToProgress = 0;
-		},
-		movePlusY() {
-			this.play("walkse");
-			let oldPos = {};
-			oldPos.x = (tileX*TILEW+tileY*TILEW)+this.spriteoffset.x;
-			oldPos.y = (tileY*TILEH-tileX*TILEH)+this.spriteoffset.y;
-
-			tileY += 1;
-			let newPos = {};
-			newPos.x = (tileX*TILEW+tileY*TILEW)+this.spriteoffset.x;
-			newPos.y = (tileY*TILEH-tileX*TILEH)+this.spriteoffset.y;
-			this.addTag("moveTo");
-			this.oldPos = oldPos;
-			this.desiredPos = newPos;
-			this.moveToProgress = 0;
-		},
-		moveMinusY(){
-			this.play("walknw");
-			let oldPos = {};
-			oldPos.x = (tileX*TILEW+tileY*TILEW)+this.spriteoffset.x;
-			oldPos.y = (tileY*TILEH-tileX*TILEH)+this.spriteoffset.y;
-
-			tileY -= 1;
-			let newPos = {};
-			newPos.x = (tileX*TILEW+tileY*TILEW)+this.spriteoffset.x;
-			newPos.y = (tileY*TILEH-tileX*TILEH)+this.spriteoffset.y;
+			this.play(walkdir);
+			let oldPos = tileToScreenPos(k.vec2(tileX, tileY), this.spriteoffset);
+			tileX += dir.x;
+			tileY += dir.y;
+			let newPos = tileToScreenPos(k.vec2(tileX, tileY), this.spriteoffset);
 			this.addTag("moveTo");
 			this.oldPos = oldPos;
 			this.desiredPos = newPos;
 			this.moveToProgress = 0;
 		},
 		center(){
-			this.pos = k.vec2((tileX*TILEW+tileY*TILEW)+this.spriteoffset.x, (tileY*TILEH-tileX*TILEH)+this.spriteoffset.y);
+			this.pos = tileToScreenPos(k.vec2(tileX, tileY), this.spriteoffset);
 		},
 		tilePos(){
 			return k.vec2(tileX, tileY);
@@ -227,22 +109,22 @@ function tilePos(tileX, tileY) {
 			for(var i = 0; i < len; i++){
 				if(delta.x > 0){
 					delta.x -= 1;
-					this.moveQueue.push({x:1, y:0})
+					this.moveQueue.push(directions.ne)
 					continue;
 				}
 				if(delta.x < 0){
 					delta.x += 1;
-					this.moveQueue.push({x:-1, y:0})
+					this.moveQueue.push(directions.sw)
 					continue;
 				}
 				if(delta.y < 0){
 					delta.y += 1;
-					this.moveQueue.push({x:0, y:-1})
+					this.moveQueue.push(directions.nw)
 					continue;
 				}
 				if(delta.y > 0){
 					delta.y -= 1;
-					this.moveQueue.push({x:0, y:1})
+					this.moveQueue.push(directions.se)
 					continue;
 				}
 			}
@@ -312,63 +194,7 @@ k.scene("main", () => {
 	negaritz.center();
 
 
-	var initiative = k.add([
-		"initiative",
-		{
-			characters : [ritz, negaritz],
-			turnindex: 0,
-			state: "IDLE",
-			optionsShowing: false,
-			moveSelectShowing: false,
-			ui_elems:[],
-			states:{
-				TURN_START:"TURN_START",
-				IDLE:"IDLE",
-				MOVE_SELECT:"MOVE_SELECT",
-				MOVING:"MOVING",
-				ATTACK_SELECT:"ATTACK_SELECT",
-				ATTACKING:"ATTACKING",
-				TURN_END: "TURN_END"
-			}
-		}
-	])
-	
-
-	k.action("initiative", (ini)=>{
-		switch(ini.state){
-			case "TURN_START":
-				//CenterCameraOnActivePlayer
-				break;
-			case "IDLE":
-				
-				showOptions(k, ini, ini.characters[ini.turnindex]);
-				break;
-			case "MOVE_SELECT":
-				
-				showMoveSelect(k, ini, ini.characters[ini.turnindex]);
-				break;
-			case "MOVING":
-				clearInitElems(k, ini);
-				break;
-			case "ATTACK_SELECT":
-				//hideAllOpenOptions();
-				//showAttackSelect()
-				break;
-			case "ATTACKING":
-				break;
-			case "TURN_END":
-				ini.turnindex = (ini.turnindex + 1) % ini.characters.length;
-				ini.state = ini.states.IDLE;
-				break;
-
-		}
-
-
-	})
-
-	initiative.on("movement_ended", ()=>{
-		initiative.state = initiative.states.TURN_END;
-	});
+	let initiative = initialize_initiative(k, [ritz, negaritz]);
 
 	displayPortraits(k, initiative.characters);
 
@@ -385,17 +211,7 @@ k.scene("main", () => {
 	})
 
 
-	k.action("clickArea", (b)=>{
-		if(b.isClicked()){
-			let character = b.ch;
-			let select = b.sel;
-			let delta = character.tilePos().sub(select.tpos)
-			if(Math.abs(delta.x) + Math.abs(delta.y) <= character.moveSpeed){
-				character.moveToTile(select.tpos);
-				b.init.state = b.init.states.MOVING;
-			}
-		}
-	})
+	
 	
 
 	k.action("moveTo", (s) => {
@@ -428,32 +244,11 @@ k.scene("main", () => {
 			return;
 		}
 		let dir = s.moveQueue.shift()
-		if(dir.x == -1 && dir.y == 0){
-			s.moveMinusX();
-		}
-		if(dir.x == 1 && dir.y == 0){
-			s.movePlusX();
-		}
-		if(dir.x == 0 && dir.y == -1){
-			s.moveMinusY();
-		}
-		if(dir.x == 0 && dir.y == 1){
-			s.movePlusY();
-		}
+		s.moveOneTile(dir);
 		s.removeTag("moveStart");
 	})
 
-	k.action("movebutton", (b)=>{
-		if (b.isHovered()){
-			b.use(k.color(0.7, 0.7, 0.7));
-		}
-		else {
-			b.use(k.color(1, 1, 1));
-		}
-		if(b.isClicked()){
-			initiative.state = initiative.states.MOVE_SELECT
-		}
-	})
+	
 
 	
 
