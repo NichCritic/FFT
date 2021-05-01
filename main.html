@@ -1,8 +1,11 @@
 <script src="kaboom/src/kaboom.js"></script>
 <script type="module">
 import {initialize_initiative} from "./initiative.js";
+import {initialize_button} from "./button.js"
+import {displayPortraits} from "./portraitMenu.js"
 // initialize kaboom context
 const k = kaboom();
+
 const TILEW = 16;
 const TILEH = 8;
 
@@ -37,21 +40,6 @@ k.loadSprite("negaritz-por", "negaritz-por.png");
 
 
 
-
-
-function displayPortraits(k, characters){
-
-	for(var i = 0; i < characters.length; i++){
-		var ch = characters[i];
-
-		ch.portraitElem = k.add([
-			k.layer('ui'),
-			k.sprite(ch.portrait),
-			k.pos(k.width() - (52+10) * (i+1) -10, k.height() - 64)
-		]);
-	}
-
-}
 
 function tileToScreenPos(tile, offset){
 	let x = (tile.x*TILEW+tile.y*TILEW) + offset.x;
@@ -137,6 +125,7 @@ function tilePos(tileX, tileY) {
 
 // define a scene
 k.scene("main", () => {
+	initialize_button(k);
 	k.layers([
 		"bg",
 		"map",

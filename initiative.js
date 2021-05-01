@@ -1,4 +1,7 @@
 
+import {Button} from "./button.js";
+import {showOptions} from "./portraitMenu.js"
+
 const TILEW = 16;
 const TILEH = 8;
 
@@ -73,17 +76,7 @@ function initialize_initiative(k, characters){
 		}
 	})
 
-	k.action("movebutton", (b)=>{
-		if (b.isHovered()){
-			b.use(k.color(0.7, 0.7, 0.7));
-		}
-		else {
-			b.use(k.color(1, 1, 1));
-		}
-		if(b.isClicked()){
-			initiative.state = initiative.states.MOVE_SELECT
-		}
-	})
+	
 
 	return initiative;
 
@@ -160,32 +153,6 @@ function clearInitElems(k, init){
 	init.moveSelectShowing = false;
 }
 
-function showOptions(k, init, ch) {
-	if(!init.optionsShowing){
-		clearInitElems(k, init);
-		let por = ch.portraitElem;
 
-		let bg = k.add([
-			k.layer("ui"),
-	  		k.rect(52, 20),
-	  		k.color(1, 1, 1),
-	  		k.pos(ch.portraitElem.pos.x, ch.portraitElem.pos.y - 25),
-	  		"movebutton"
-		]);
 
-		let text = k.add([
-			k.layer("ui"),
-		  	k.text("Move"),
-		  	k.pos(ch.portraitElem.pos.x+10, ch.portraitElem.pos.y - 15),
-		  	k.color(0, 0, 0)
-		]);
-
-		
-		init.ui_elems.push(bg);
-		init.ui_elems.push(text);
-		init.optionsShowing = true;
-	}
-
-}
-
-export {initialize_initiative}
+export {initialize_initiative, clearInitElems}
