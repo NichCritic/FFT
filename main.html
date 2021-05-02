@@ -2,7 +2,8 @@
 <script type="module">
 import {initialize_initiative} from "./initiative.js";
 import {initialize_button} from "./button.js"
-import {displayPortraits} from "./portraitMenu.js"
+import {displayPortrait} from "./portraitMenu.js"
+import {moveSelect, initialize_moveSelect} from "./moveSelect.js"
 // initialize kaboom context
 const k = kaboom();
 
@@ -126,6 +127,7 @@ function tilePos(tileX, tileY) {
 // define a scene
 k.scene("main", () => {
 	initialize_button(k);
+	initialize_moveSelect(k);
 	k.layers([
 		"bg",
 		"map",
@@ -161,7 +163,8 @@ k.scene("main", () => {
 			portrait: "ritz-por",
 			spriteoffset: {x:4, y:-16},
 			moveQueue:[],
-			moveSpeed:3
+			moveSpeed:3,
+			hasInitiative:false
 		}
 	]);
 
@@ -177,15 +180,23 @@ k.scene("main", () => {
 			portrait: "negaritz-por",
 			spriteoffset: {x:4, y:-16},
 			moveQueue:[],
-			moveSpeed:3
+			moveSpeed:3,
+			hasInitiative:false
 		}
 	]);
 	negaritz.center();
 
 
 	let initiative = initialize_initiative(k, [ritz, negaritz]);
+	
 
-	displayPortraits(k, initiative.characters);
+	displayPortrait(k, ritz, initiative);
+	displayPortrait(k, negaritz, initiative);
+
+	moveSelect(k, ritz, initiative);
+	moveSelect(k, negaritz, initiative);
+
+	initiative.state = initiative.states.TURN_START;
 
 
 	//Very awkward to just have these action logics hanging here

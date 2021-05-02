@@ -39,6 +39,11 @@ function Button(k, args) {
 	]);
 
 	var b = {bg:bg, text:text}
+
+	b.visible = function(visible){
+		this.bg.hidden = !visible;
+		this.text.hidden = !visible;
+	}.bind(b);
 	return b;
 
 
