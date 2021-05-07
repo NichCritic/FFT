@@ -3,17 +3,18 @@
 import {initialize_initiative} from "./initiative.js";
 import {initialize_button} from "./button.js"
 import {displayPortrait} from "./portraitMenu.js"
-import {moveSelect, initialize_moveSelect} from "./moveSelect.js"
+import {moveSelect} from "./moveSelect.js"
+import {initialize_tileSelect} from "./initialize_tileSelect"
 // initialize kaboom context
 const k = kaboom();
 
 const TILEW = 16;
 const TILEH = 8;
 
-k.loadSprite("grass", "grass.png");
-k.loadSprite("movementselector", "movementselector.png");
-k.loadSprite("select", "select.png")
-k.loadSprite("ritz", "ritzwalk.png", {
+k.loadSprite("grass", "assets/grass.png");
+k.loadSprite("movementselector", "assets/movementselector.png");
+k.loadSprite("select", "assets/select.png")
+k.loadSprite("ritz", "assets/ritzwalk.png", {
     sliceX: 3,
     sliceY: 4,
     anims: {
@@ -24,7 +25,7 @@ k.loadSprite("ritz", "ritzwalk.png", {
     },
 });
 
-k.loadSprite("negaritz", "negaritzwalk.png", {
+k.loadSprite("negaritz", "assets/negaritzwalk.png", {
     sliceX: 3,
     sliceY: 4,
     anims: {
@@ -35,9 +36,24 @@ k.loadSprite("negaritz", "negaritzwalk.png", {
     },
 });
 
-k.loadSprite("ritz-por", "ritz-por.png");
-k.loadSprite("negaritz-por", "negaritz-por.png");
+k.loadSprite("remedy", "assets/remedy-mv.png", {
+	sliceX: 10,
+    sliceY: 12,
+    anims: {
+        walksw: [0, 1, 2, 3],
+        walknw: [10, 11, 12, 13],
+        walkse: [20, 21, 22, 23],
+        walkne: [30, 31, 32, 33],
+        attacksw: [40, 41, 42, 43, 44, 45, 46, 47],
+        attacknw: [50, 51, 52, 53, 54, 55, 56, 57],
+        attackse: [60, 61, 62, 63, 64, 65, 66, 67],
+        attackne: [70, 71, 72, 73, 74, 75, 76, 77],
+    },
+})
 
+k.loadSprite("ritz-por", "assets/ritz-por.png");
+k.loadSprite("negaritz-por", "assets/negaritz-por.png");
+k.loadSprite("remedy-por", "assets/remedy-por.png");
 
 
 
@@ -186,15 +202,31 @@ k.scene("main", () => {
 	]);
 	negaritz.center();
 
+	var remedy = k.add([
+		k.sprite("remedy", {animSpeed: 0.5}),
+		k.pos(-1000, -1000),
+		tilePos(15, 0),
+		{
+			portrait: "remedy-por",
+			spriteoffset: {x:-5, y:-51},
+			moveQueue:[],
+			moveSpeed:3,
+			hasInitiative:false
+		}
+	]);
+	remedy.center();
 
-	let initiative = initialize_initiative(k, [ritz, negaritz]);
+
+	let initiative = initialize_initiative(k, [ritz, negaritz, remedy]);
 	
 
 	displayPortrait(k, ritz, initiative);
 	displayPortrait(k, negaritz, initiative);
+	displayPortrait(k, remedy, initiative);
 
 	moveSelect(k, ritz, initiative);
 	moveSelect(k, negaritz, initiative);
+	moveSelect(k, remedy, initiative);
 
 	initiative.state = initiative.states.TURN_START;
 

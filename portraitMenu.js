@@ -15,6 +15,16 @@ function displayPortrait(k, character, initiative){
 		k.pos(pos.x, pos.y),
 		{
 			buttons: [
+			    Button(k, 
+				{
+					text: "Attack",
+					//Hack, need to get this from layout
+					pos: pos.add(0, -65),
+					textpos:pos.add(10, -55),
+					onClick: () => {
+						initiative.state = initiative.states.ATTACK_SELECT;
+					}
+				}),
 				Button(k, 
 				{
 					text: "Move",
