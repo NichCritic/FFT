@@ -1,12 +1,12 @@
 import {Button} from "./button.js"
 
 //Hack to make portraits appear next to each other. Replace with UI List
-let i = 1;
+let i = 0;
 
 function displayPortrait(k, character, initiative){
 
 	var ch = character;
-	let pos = k.vec2(k.width() - ((52+10) * i) -10, k.height() - 64)
+	let pos = k.vec2(((52+10) * i) +10, k.height() - 64)
 
 
 	let portraitElem = k.add([
@@ -45,19 +45,34 @@ function displayPortrait(k, character, initiative){
 					}
 				})
 			],
+			cancelButton: Button(k, {
+					text: "Cancel",
+					//Hack, need to get this from layout
+					pos: pos.add(0, -25),
+					textpos:pos.add(10, -15),
+					onClick: () => {
+						initiative.state = initiative.states.IDLE;
+					}
+				}),
 			onInitiativeStateChange(state) {
-				if(state == initiative.states.IDLE && character.hasInitiative){
-					for(let i = 0; i < this.buttons.length; i++){
-						let button = this.buttons[i];
+				for(let i = 0; i < this.buttons.length; i++){
+					let button = this.buttons[i];
+
+					if(state == initiative.states.IDLE && character.hasInitiative){
 						button.visible(true);
+					} 
+					else{
+						
+						button.visible(false);		
 					}
 				}
-				else{
-					for(let i = 0; i < this.buttons.length; i++){
-						let button = this.buttons[i];
-						button.visible(false);
-					}
+
+				if((state == initiative.states.MOVE_SELECT ||  state == initiative.states.ATTACK_SELECT)&& character.hasInitiative){
+					this.cancelButton.visible(true);
+				} else{
+					this.cancelButton.visible(false);
 				}
+				
 
 			}
 		}

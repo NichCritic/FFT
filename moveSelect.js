@@ -1,20 +1,20 @@
-import {showSelect} from "./tileSelect"
+import {showSelect, hideSelect} from "./tileSelect.js"
 
-const TILEW = 16;
-const TILEH = 8;
-let ui_elems = [];
+
+
 
 
 
 function moveSelect(k, character, initiative) {
 
 	let initiativeStateChange = function(state){
+		
 		if(state == initiative.states.MOVE_SELECT){
 			if(character.hasInitiative){
-				showMoveSelect(k, initiative, character);
+				character.mv_elems = showMoveSelect(k, initiative, character);
 			}
 		}else{
-			clearElems(k);
+			hideSelect(k, character.mv_elems ? character.mv_elems : []);
 		}
 
 	}
@@ -41,9 +41,9 @@ function showMoveSelect(k, init, character){
 		}
 	}
 	let sprite = "movementselector";
-	showSelect(k, init, character, x, y, size, onClick, sprite)
+	return showSelect(k, init, character, x, y, size, onClick, sprite)
 }
 
 
 
-export {moveSelect, initialize_moveSelect}
+export {moveSelect}

@@ -8,7 +8,10 @@ function initialize_button(k) {
 		else {
 			b.use(b.basecolor);
 		}
-		if(b.isClicked()){
+		if(!b.enabled){
+			b.use(b.hovercolor);
+		}
+		if(b.isClicked() && !b.hidden && b.enabled){
 			b.onClick(b);
 		}
 	})
@@ -27,7 +30,8 @@ function Button(k, args) {
   		{
   			basecolor: k.color(1, 1, 1),
   			hovercolor:k.color(0.7, 0.7, 0.7),
-  			onClick: onClick
+  			onClick: onClick,
+  			enabled:true
   		}
 	]);
 

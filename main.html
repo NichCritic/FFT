@@ -3,8 +3,10 @@
 import {initialize_initiative} from "./initiative.js";
 import {initialize_button} from "./button.js"
 import {displayPortrait} from "./portraitMenu.js"
+
+import {initialize_tileSelect} from "./tileSelect.js"
+import {attackSelect} from "./attackSelect.js"
 import {moveSelect} from "./moveSelect.js"
-import {initialize_tileSelect} from "./initialize_tileSelect"
 // initialize kaboom context
 const k = kaboom();
 
@@ -13,6 +15,7 @@ const TILEH = 8;
 
 k.loadSprite("grass", "assets/grass.png");
 k.loadSprite("movementselector", "assets/movementselector.png");
+k.loadSprite("attackselector", "assets/attackselector.png");
 k.loadSprite("select", "assets/select.png")
 k.loadSprite("ritz", "assets/ritzwalk.png", {
     sliceX: 3,
@@ -143,7 +146,7 @@ function tilePos(tileX, tileY) {
 // define a scene
 k.scene("main", () => {
 	initialize_button(k);
-	initialize_moveSelect(k);
+	initialize_tileSelect(k);
 	k.layers([
 		"bg",
 		"map",
@@ -211,14 +214,34 @@ k.scene("main", () => {
 			spriteoffset: {x:-5, y:-51},
 			moveQueue:[],
 			moveSpeed:3,
+			attackRange:1,
 			hasInitiative:false
 		}
 	]);
+
+
+
 	remedy.center();
 
 
 	let initiative = initialize_initiative(k, [ritz, negaritz, remedy]);
 	
+	remedy.onAnimEnd("attacksw", () => {
+		initiative.state = initiative.states.IDLE
+		remedy.play("walksw")
+	});
+	remedy.onAnimEnd("attacknw", () => {
+		initiative.state = initiative.states.IDLE
+		remedy.play("walknw")
+	});
+	remedy.onAnimEnd("attackse", () => {
+		initiative.state = initiative.states.IDLE
+		remedy.play("walkse")
+	});
+	remedy.onAnimEnd("attackne", () => {
+		initiative.state = initiative.states.IDLE
+		remedy.play("walkne")
+	});
 
 	displayPortrait(k, ritz, initiative);
 	displayPortrait(k, negaritz, initiative);
@@ -227,6 +250,8 @@ k.scene("main", () => {
 	moveSelect(k, ritz, initiative);
 	moveSelect(k, negaritz, initiative);
 	moveSelect(k, remedy, initiative);
+
+	attackSelect(k, remedy, initiative);
 
 	initiative.state = initiative.states.TURN_START;
 

@@ -2,9 +2,6 @@
 import {Button} from "./button.js";
 import {observable} from "./observable.js"
 
-const TILEW = 16;
-const TILEH = 8;
-
 
 
 function initialize_initiative(k, characters){
@@ -81,7 +78,7 @@ function initialize_initiative(k, characters){
 	})
 
 	initiative.on("movement_ended", ()=>{
-		initiative.state = initiative.states.TURN_END;
+		initiative.state = initiative.states.IDLE;
 	});
 
 	
